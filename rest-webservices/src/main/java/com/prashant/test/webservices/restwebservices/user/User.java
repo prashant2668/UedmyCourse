@@ -12,6 +12,8 @@ import javax.validation.constraints.Size;
 
 import org.springframework.web.bind.annotation.ModelAttribute;
 
+import com.fasterxml.jackson.annotation.JsonIgnore;
+
 import io.swagger.annotations.ApiModel;
 import io.swagger.annotations.ApiModelProperty;
 @ApiModel("User details manual description")
@@ -60,6 +62,13 @@ public class User {
 	}
 	
 	
+	
+	public List<Posts> getPosts() {
+		return posts;
+	}
+	public void setPosts(List<Posts> posts) {
+		this.posts = posts;
+	}
 	
 	public User(String name, Integer id, Date birthDate) {
 		super();

@@ -27,6 +27,8 @@ public class UserJPAResourceController {
 	@Autowired
 	private UserJPARepository userjparepo;
 
+	@Autowired
+	private PostJPARepository postrepository;
 
 	@GetMapping("/jpa/users")
 	public List allUserr() {
@@ -42,11 +44,9 @@ public class UserJPAResourceController {
 
 		//return all user link by using HATEOAS
 		EntityModel<Optional<User>> resource = EntityModel.of(user);
-
 		WebMvcLinkBuilder linkTo = 
 				linkTo(methodOn(this.getClass()).allUserr());
-
-		resource.add(linkTo.withRel("all-users"));
+		resource.add(linkTo.withRel("click here to get all-users"));
 
 		return resource;
 
@@ -66,6 +66,39 @@ public class UserJPAResourceController {
 	public void deleteUser(@PathVariable int id) { 
 		userjparepo.deleteById(id); 
 		
+	}
+
+	
+	@GetMapping("/jpa/users/{id}/posts")
+	public List<Posts> allUserwithPosts(@PathVariable int id) {
+		 Optional<User> userOptional= userjparepo.findById(id);
+		 if (!userOptional.isPresent()) {
+			throw new UserNotFoundException("For id- "+id);
+		}
+		 
+		return userOptional.get().getPosts();
+		 	
+	}
+	
+	@PostMapping("/jpa/users/{id}/posts")
+	public ResponseEntity<Object> addPoststoUser(@PathVariable int id, @RequestBody Posts posts) {		
+		
+		 Optional<User> userOptional= userjparepo.findById(id);
+		 if (!userOptional.isPresent()) {
+			throw new UserNotFoundException("For id- "+id);
+		}
+		 
+		 User user=userOptional.get();
+		 
+		 posts.setUser(user);
+		 
+		 postrepository.save(posts);
+		
+		URI location = ServletUriComponentsBuilder.fromCurrentRequest()
+				.path("/{id}").buildAndExpand(posts.getId()).toUri();
+
+		return ResponseEntity.created(location).build();
+
 	}
 
 }
